@@ -71,6 +71,7 @@
     <div class="btn-container">
       <button id="track">Track</button>
       <button id="identify">Identify</button>
+      <button id="track-exit">Track & Unload</button>
     </div>
     <div class="view">
       <h3>Cookies (<span id="cookieJarCounter">0</span>)</h3>
@@ -92,6 +93,7 @@
     <script type="text/javascript">
       const trackBtn = document.getElementById('track');
       const identifyBtn = document.getElementById('identify');
+      const trackUnloadBtn = document.getElementById('track-exit');
       const userId = uuidv4();
 
       identifyBtn.addEventListener('click', () => {
@@ -105,6 +107,19 @@
         analytics.track('test tracking', {
           foo: 'bar'
         });
+      })
+
+      window.addEventListener('beforeunload', () => {
+        setTimeout(() => {
+          window.location = window.location;
+        }, 5000);
+      });
+
+      trackBtn.addEventListener('click', () => {
+        analytics.track('test tracking', {
+          foo: 'bar'
+        });
+        
         window.dispatchEvent(new Event('beforeunload'));
       })
     </script>
