@@ -1,161 +1,162 @@
 <!DOCTYPE html>
- 
 <html>
-<head>
-<title>Sneakerhead Signup</title>
-<script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
-<script>
-  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey="qsAdroPpV1gmJnVYmw2sM9Djuxvi5EYv";;analytics.SNIPPET_VERSION="4.15.3";
-  analytics.load("qsAdroPpV1gmJnVYmw2sM9Djuxvi5EYv", 
-  {
-    integrations: {
-      "Segment.io": {
-        deliveryStrategy: {
-          strategy: "batching",
-          config: {
-            size: 10,
-            timeout: 5000
-          }
+  <head>
+    <meta name="viewport" content="width=device-width">
+    <title>Analytics Next Storage Demo</title>
+    <link rel="stylesheet" href="index.css" >
+    <script>
+      const cookieDescriptors = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+      Object.defineProperty(Document.prototype, '_cookie', cookieDescriptors);
+      Object.defineProperty(Document.prototype, 'cookie', {
+        enumerable: true,
+        configurable: true,
+        get: function () {
+          return this['_cookie'];
         },
+        set: function (value) {
+          this['_cookie'] = value;
+          // console.log(value);
+          document.dispatchEvent(new CustomEvent('cookieChange', {
+            detail: {
+              cookie: value
+            }
+          }))
+        }
+      })
+    </script>
+    <script>
+      const getItem = Storage.prototype.getItem;
+      const setItem = Storage.prototype.setItem;
+      localStorage.setItem = function(key, value) {
+        document.dispatchEvent(new CustomEvent('storageChange', {
+          detail: {
+            type: 'set',
+            key,
+            value
+          }
+        }));
+        Storage.prototype.setItem.call(this, key, value);
       }
-    }
-  }
-  );
-  analytics.page();
-  }}();
-</script>
-</head>
- 
-<body>
-<h1>Sign up for the latest information on sneaker drops!</h1>
-<p>Enter your contact information if you would like to receive alerts about the best sneakers as soon as they drop.</p>
-<!--Location for users to enter their information to receive the sneakerhead newsletter-->
-<form name="sneakersignup" onsubmit="identify(event)">
-<br> <br>
-Name: <input name="fullname" required="" size="60" type="text"/>
-<br> <br>
-Email: <input name="email" required="" size="60" type="email"/>
-<br> <br>
-<label for="shoeType">Preferred Shoe</label>
- <select id="shoeType" name="shoeType">
-   <option value="Running">Running</option>
-   <option value="Cross Trainers">Cross Trainers</option>
-   <option value="Sports">Sports</option>
- </select>
-<br> <br>
- <input name="submit" type="submit" value="submit"/> </form>
-<br>
- 
-<script type="text/javascript">
- function identify(e){
- 
-   e.preventDefault();
-   var form = e.target;
-   var email = form["email"].value;
-   var fullname = form["fullname"].value;
-   var shoeType = form["shoeType"].value;
-   var user = {
-     email: email,
-     name: fullname
-   };
-// Identify call
-    analytics.identify(uuidv4(), {
-      email: email,
-      name: fullname,
-      shoeType: shoeType
-    });
- //  Sign-up Track call
-    analytics.track('user signed up', user, function() {
-      // window.location.href = "";
-    });
-// Ecommerce Events
-   analytics.track('Products Searched', {
-    query: 'kith air force 1'
-   });
- 
-   analytics.track('Product List Viewed', {
-     list_id: 'hot_sneakers_2021',
-     category: 'Trendy',
-     products: [ {
-       product_id: '507f1f77bcf86cd799439011',
-       sku: '45790-32',
-       name: 'Air Jordan 4 - White / Military Blue - Fire Red',
-       price: 500.00,
-       position: 1,
-       category: 'Jordan',
-       url: 'https://www.example.com/product/path',
-       image_url: 'https://www.example.com/product/path.jpg'
-     }, {
-       product_id: '505bd76785ebb509fc183733',
-       sku: '46493-32',
-       name: 'Kith x Nike Air Force 1 “NYC”',
-       price: 1000.00,
-       position: 2,
-       category: 'Air Force 1'
-   } ] });
- 
-   analytics.track('Product Viewed', {
-     product_id: '507f1f77bcf86cd799439011',
-     sku: 'G-32',
-     category: 'Jordan',
-     name: 'Air Jordan 4 - White / Military Blue - Fire Red',
-     brand: 'Nike',
-     variant: 'November 2019',
-     price: 500.00,
-     quantity: 1,
-     coupon: 'First_Purchase',
-     currency: 'usd',
-     position: 2,
-     value: 500,
-     last_name: 'Bowerman',
-     url: 'https://www.example.com/product/path',
-     image_url: 'https://www.example.com/product/path.jpg'
-   });
- 
-   analytics.track('Product Added', {
-     cart_id: 'skdjsidjsdkdj29j',
-     product_id: '507f1f77bcf86cd799439011',
-     sku: 'G-32',
-     category: 'Jordan',
-     name: 'Air Jordan 4 - White / Military Blue - Fire Red',
-     brand: 'Nike',
-     variant: 'November 2019',
-     price: 500.00,
-     quantity: 1,
-     coupon: 'First_Purchase',
-     position: 2,
-     url: 'https://www.example.com/product/path',
-     image_url: 'https://www.example.com/product/path.jpg'
-   });
- 
-   analytics.track('Order Completed', {
-     checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
-     order_id: '50314b8e9bcf000000000000',
-     affiliation: 'Google Store',
-     total: 555.00,
-     subtotal: 500.00,
-     revenue: 525.00,
-     shipping: 35.00,
-     tax: 20.00,
-     discount: 30.00,
-     coupon: 'First_Purchase',
-     currency: 'USD',
-     products: [
-       {
-         product_id: '507f1f77bcf86cd799439011',
-         sku: 'G-32',
-         name: 'Air Jordan 4 - White / Military Blue - Fire Red',
-         price: 500.00,
-         quantity: 1,
-         category: 'Jordan',
-         url: 'https://www.example.com/product/path',
-         image_url: 'https:///www.example.com/product/path.jpg'
-       }
-     ]
-   });
- }
- 
-</script>
- 
-</body>
+      localStorage.removeItem = function(key) {
+        document.dispatchEvent(new CustomEvent('storageChange', {
+          detail: {
+            key,
+            type: 'remove'
+          }
+        }));
+        Storage.prototype.removeItem.call(this, key);
+      }
+    </script>
+    <script>
+
+    </script>
+    <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <script>
+      // Javascript8 source (prod)
+      // Destinations: none
+      // AJS - next
+      function persistanceDisabled() {
+        return window.location.search.substring(1).split('&').map(p => p.split('=')).filter(([k, v]) => k === 'disable-storage' && v === 'true').length > 0
+      }
+      !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics-next/br/disable-storage/latest/standalone.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey="cpdpFCBh6wCJa7JotzGK7CosKHjRTott";;analytics.SNIPPET_VERSION="4.15.3";
+        analytics.load("cpdpFCBh6wCJa7JotzGK7CosKHjRTott", {
+          disableClientPersistance: persistanceDisabled()
+        });
+        analytics.page();
+      }}();
+    </script>
+  </head>
+
+  <body>
+    <div class="btn-container">
+      <button id="track">Track</button>
+      <button id="identify">Identify</button>
+    </div>
+    <div class="view">
+      <h3>Cookies (<span id="cookieJarCounter">0</span>)</h3>
+      <ul id="cookieJar"></ul>
+      <h3>LocalStorage (<span id="localStorageCounter">0</span>)</h3>
+      <dl id="localStorageContents"></dl>
+    </div>
+    <div class="diagnostics">
+      <div>
+        <h3>Cookies operations (<span id="cookieCounter">0</span>):</h3>
+        <ul id="cookieDiag"></ul>
+      </div>
+      <div>
+        <h3>LocalStorage operations (<span id="storageCounter">0</span>):</h3>
+        <ul id="localStorageDiag"></ul>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      const trackBtn = document.getElementById('track');
+      const identifyBtn = document.getElementById('identify');
+      const userId = uuidv4();
+
+      identifyBtn.addEventListener('click', () => {
+        analytics.identify(userId, {
+          email: 'christopher.radek@segment.com',
+          name: 'Chris Radek'
+        });
+      });
+
+      trackBtn.addEventListener('click', () => {
+        analytics.track('test tracking', {
+          foo: 'bar'
+        });
+      })
+    </script>
+
+    <script type="text/javascript">
+      const cookieContainer = document.getElementById('cookieDiag');
+      const cookieCounter = document.getElementById('cookieCounter');
+      let cookieCount = 0;
+      document.addEventListener('cookieChange', ({detail: {cookie}}) => {
+        cookieCount++;
+        cookie = cookie.split(';')[0];
+        const [name, value] = cookie.split('=');
+        cookieContainer.innerHTML += `<li>${name}: "${value}"</li>`;
+        cookieContainer.scrollTo({ top: cookieContainer.scrollHeight });
+        cookieCounter.innerText = cookieCount;
+      });
+
+      const cookieJarContainer = document.getElementById('cookieJar');
+      const cookieJarCounter = document.getElementById('cookieJarCounter');
+      document.addEventListener('cookieChange', () => {
+        const cookies = document.cookie.split(';');
+
+        cookieJarContainer.innerHTML = cookies.map((c) => {
+          const [name, value] = c.split('=');
+          return `<li>${decodeURIComponent(name)}: "${decodeURIComponent(value)}"</li>`;
+        }).join('');
+        cookieJarCounter.innerText = cookies.length;
+      });
+
+      const localStorageContainer = document.getElementById('localStorageDiag');
+      const localStorageCounter = document.getElementById('storageCounter');
+      let storageCount = 0;
+      document.addEventListener('storageChange', ({detail: {key, value, type}}) => {
+        storageCount++;
+        localStorageContainer.innerHTML += `<li>
+          <span class="storage-${type}">(${type})</span>${key}
+        </li>`.trim();
+        localStorageContainer.scrollTo({ top: localStorageContainer.scrollHeight })
+        localStorageCounter.innerText = storageCount;
+      });
+
+      const lsContentContainer = document.getElementById('localStorageContents');
+      const lsCounter = document.getElementById('localStorageCounter');
+      document.addEventListener('storageChange', () => {
+        const elements = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          elements.push(`<dt>${key}</dt><dd>${value}</dd>`);
+        }
+        lsContentContainer.innerHTML = elements.join('');
+        lsCounter.innerText = localStorage.length
+      });
+    </script>
+  </body>
 </html>
