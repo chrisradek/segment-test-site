@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width">
+    <title>Analytics Next Storage Demo</title>
+    <link rel="stylesheet" href="index.css" >
+    <script>
+        try {
+            arrayRe = /\[(?="|'|\d)|\.|(?<="|'|\d)]+/g
+        } catch (e) {
+            //safari does not support lookbehind operator so we will default
+            //to a simpler approach wherein [bar] will not be a valid key
+            arrayRe = /\[|\.|]+/g;
+            console.log('test')
+        }
+      const cookieDescriptors = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+      Object.defineProperty(Document.prototype, '_cookie', cookieDescriptors);
+      Object.defineProperty(Document.prototype, 'cookie', {
+        enumerable: true,
+        configurable: true,
+        get: function () {
+          return this['_cookie'];
+        },
+        set: function (value) {
+          this['_cookie'] = value;
+          // console.log(value);
+          document.dispatchEvent(new CustomEvent('cookieChange', {
+            detail: {
+              cookie: value
+            }
+          }))
+        }
+      })
+    </script>
+    <script>
+      const getItem = Storage.prototype.getItem;
+      const setItem = Storage.prototype.setItem;
+      localStorage.setItem = function(key, value) {
+        document.dispatchEvent(new CustomEvent('storageChange', {
+          detail: {
+            type: 'set',
+            key,
+            value
+          }
+        }));
+        Storage.prototype.setItem.call(this, key, value);
+      }
+      localStorage.removeItem = function(key) {
+        document.dispatchEvent(new CustomEvent('storageChange', {
+          detail: {
+            key,
+            type: 'remove'
+          }
+        }));
+        Storage.prototype.removeItem.call(this, key);
+      }
+    </script>
+    <script>
+
+    </script>
+    <script src="https://unpkg.com/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
+    <script>
+      // Javascript8 source (prod)
+      // Destinations: none
+      // AJS - next
+      function persistanceDisabled() {
+        return window.location.search.substring(1).split('&').map(p => p.split('=')).filter(([k, v]) => k === 'disable-storage' && v === 'true').length > 0
+      }
+      !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey="cpdpFCBh6wCJa7JotzGK7CosKHjRTott";;analytics.SNIPPET_VERSION="4.15.3";
+        analytics.load("cpdpFCBh6wCJa7JotzGK7CosKHjRTott");
+        analytics.page();
+      }}();
+    </script>
+  </head>
+
+  <body>
+    <div class="btn-container">
+      <button id="track">Track</button>
+      <button id="identify">Identify</button>
+      <button id="track-exit">Track & Unload</button>
+    </div>
+    <div class="view">
+      <h3>Cookies (<span id="cookieJarCounter">0</span>)</h3>
+      <ul id="cookieJar"></ul>
+      <h3>LocalStorage (<span id="localStorageCounter">0</span>)</h3>
+      <dl id="localStorageContents"></dl>
+    </div>
+    <div class="diagnostics">
+      <div>
+        <h3>Cookies operations (<span id="cookieCounter">0</span>):</h3>
+        <ul id="cookieDiag"></ul>
+      </div>
+      <div>
+        <h3>LocalStorage operations (<span id="storageCounter">0</span>):</h3>
+        <ul id="localStorageDiag"></ul>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      const trackBtn = document.getElementById('track');
+      const identifyBtn = document.getElementById('identify');
+      const trackUnloadBtn = document.getElementById('track-exit');
+      const userId = uuidv4();
+
+      identifyBtn.addEventListener('click', () => {
+        analytics.identify(userId, {
+          email: 'christopher.radek@segment.com',
+          name: 'Chris Radek'
+        });
+      });
+
+      trackBtn.addEventListener('click', () => {
+        analytics.track('test tracking', {
+          foo: 'bar'
+        });
+      })
+
+      window.addEventListener('beforeunload', () => {
+        setTimeout(() => {
+          window.location = window.location;
+        }, 5000);
+      });
+
+      trackUnloadBtn.addEventListener('click', () => {
+        analytics.track('test tracking', {
+          foo: 'bar'
+        });
+        
+        window.dispatchEvent(new Event('beforeunload'));
+      })
+    </script>
+
+    <script type="text/javascript">
+      const cookieContainer = document.getElementById('cookieDiag');
+      const cookieCounter = document.getElementById('cookieCounter');
+      let cookieCount = 0;
+      document.addEventListener('cookieChange', ({detail: {cookie}}) => {
+        cookieCount++;
+        cookie = cookie.split(';')[0];
+        const [name, value] = cookie.split('=');
+        cookieContainer.innerHTML += `<li>${name}: "${value}"</li>`;
+        cookieContainer.scrollTo({ top: cookieContainer.scrollHeight });
+        cookieCounter.innerText = cookieCount;
+      });
+
+      const cookieJarContainer = document.getElementById('cookieJar');
+      const cookieJarCounter = document.getElementById('cookieJarCounter');
+      document.addEventListener('cookieChange', () => {
+        const cookies = document.cookie.split(';');
+
+        cookieJarContainer.innerHTML = cookies.map((c) => {
+          const [name, value] = c.split('=');
+          return `<li>${decodeURIComponent(name)}: "${decodeURIComponent(value)}"</li>`;
+        }).join('');
+        cookieJarCounter.innerText = cookies.length;
+      });
+
+      const localStorageContainer = document.getElementById('localStorageDiag');
+      const localStorageCounter = document.getElementById('storageCounter');
+      let storageCount = 0;
+      document.addEventListener('storageChange', ({detail: {key, value, type}}) => {
+        storageCount++;
+        localStorageContainer.innerHTML += `<li>
+          <span class="storage-${type}">(${type})</span>${key}
+        </li>`.trim();
+        localStorageContainer.scrollTo({ top: localStorageContainer.scrollHeight })
+        localStorageCounter.innerText = storageCount;
+      });
+
+      const lsContentContainer = document.getElementById('localStorageContents');
+      const lsCounter = document.getElementById('localStorageCounter');
+      document.addEventListener('storageChange', () => {
+        const elements = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          elements.push(`<dt>${key}</dt><dd>${value}</dd>`);
+        }
+        lsContentContainer.innerHTML = elements.join('');
+        lsCounter.innerText = localStorage.length
+      });
+    </script>
+  </body>
+</html>
