@@ -15,7 +15,7 @@
         console.log('loading ajs');
       }}();
       analytics.on('initialize', alert('test'));
-      analytics.identify(userId, {
+      analytics.identify('test', {
         email: 'christopher.radek@segment.com',
         name: 'Chris Radek'
       });
@@ -36,10 +36,9 @@
       const trackBtn = document.getElementById('track');
       const identifyBtn = document.getElementById('identify');
       const trackUnloadBtn = document.getElementById('track-exit');
-      const userId = uuidv4();
 
       identifyBtn.addEventListener('click', () => {
-        analytics.identify(userId, {
+        analytics.identify('test3', {
           email: 'christopher.radek@segment.com',
           name: 'Chris Radek'
         });
